@@ -22,7 +22,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       
       - name: Configure AWS credentials from Test account
         uses: aws-actions/configure-aws-credentials@v1
@@ -33,9 +33,10 @@ jobs:
           
       - name: Get old instance and snapshot name, create new instance name
         run: | 
-          echo "OLD_INSTANCE_SNAPSHOT_NAME=$(aws lightsail get-instance-snapshots | grep '"name": "casaos-0.3.6-1666150291' | sed 's/ //g' | sed 's/"//g' | sed 's/,//g' | sed 's/name://g')" >> $GITHUB_ENV
-          echo "OLD_INSTANCE_NAME=$(aws lightsail get-instances | grep '"name": "CasaOS-Demo-[0-9]' | sed 's/ //g' | sed 's/"//g' | sed 's/,//g' | sed 's/name://g')" >> $GITHUB_ENV
-          echo "NEW_INSTANCE_NAME=CasaOS-Demo-$(date +%s)" >> $GITHUB_ENV
+          echo "OLD_INSTANCE_SNAPSHOT_NAME=CasaOS-v0.4.4-3-Demo-1700132299" >> $GITHUB_ENV
+          echo "OLD_INSTANCE_NAME=$(aws lightsail get-instances | grep '"name": "CasaOS-Demo-[0-9]' | tail -1 | sed 's/ //g' | sed 's/"//g' | sed 's/,//g' | sed 's/name://g')" >> $GITHUB_ENV
+          # echo "OLD_INSTANCE_NAME=CasaOS-Demo-1687680295" >> $GITHUB_ENV
+          echo "NEW_INSTANCE_NAME= CasaOS-Demo-$(date +%s)" >> $GITHUB_ENV
           
       - name: Create instances from snapshot
         run: | 
@@ -75,5 +76,9 @@ jobs:
         run: | 
           aws lightsail delete-instance \
             --instance-name ${{ env.OLD_INSTANCE_NAME }}
+      - name: Demo Reset Error Handling
+        if: ${{ failure() }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{"msg_type":"text","content":{"text":"Demo Reset Error"}}' ${{ secrets.SSH_ROBOT_URL }} 
             
             

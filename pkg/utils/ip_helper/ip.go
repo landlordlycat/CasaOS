@@ -1,6 +1,7 @@
 package ip_helper
 
 import (
+	"fmt"
 	"net"
 	"strings"
 
@@ -10,21 +11,22 @@ import (
 func IsIPv4(address string) bool {
 	return strings.Count(address, ":") < 2
 }
+
 func IsIPv6(address string) bool {
 	return strings.Count(address, ":") >= 2
 }
 
-//获取外网ip
+// 获取外网ip
 func GetExternalIPV4() string {
 	return httper2.Get("https://api.ipify.org", nil)
 }
 
-//获取外网ip
+// 获取外网ip
 func GetExternalIPV6() string {
 	return httper2.Get("https://api6.ipify.org", nil)
 }
 
-//获取本地ip
+// 获取本地ip
 func GetLoclIp() string {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
@@ -35,11 +37,11 @@ func GetLoclIp() string {
 			if ipnet.IP.To4() != nil {
 				return ipnet.IP.String()
 			}
-
 		}
 	}
 	return "127.0.0.1"
 }
+
 func GetDeviceAllIP(port string) []string {
 	var address []string
 	addrs, err := net.InterfaceAddrs()
@@ -55,12 +57,34 @@ func GetDeviceAllIP(port string) []string {
 	}
 	return address
 }
+func GetDeviceAllIPv4() map[string]string {
+	address := make(map[string]string)
+	addrs, err := net.Interfaces()
+	if err != nil {
+		return address
+	}
+	for _, a := range addrs {
+		if a.Flags&net.FlagLoopback != 0 || a.Flags&net.FlagUp == 0 {
+			continue
+		}
+		addrs, err := a.Addrs()
+		if err != nil {
+			fmt.Println("Error:", err)
+			continue
+		}
 
+		for _, addr := range addrs {
+			if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() && ipnet.IP.To4() != nil {
+				address[a.Name] = ipnet.IP.String()
+			}
+		}
+	}
+	return address
+}
 func HasLocalIP(ip net.IP) bool {
 	if ip.IsLoopback() {
 		return true
 	}
-	ip.String()
 
 	ip4 := ip.To4()
 	if ip4 == nil {

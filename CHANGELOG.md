@@ -16,6 +16,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.4.3]
+
+### Added
+
+- [Disk] Now usb also supports merging to
+
+
+### Changed
+
+- [File] Solve the installation dependency problem, make the installation more smoothly
+- [File] Change the default permissions of the sharing folder
+
+### Fixed
+
+- [System] Fixed  not see wlan iface ([#909](https://github.com/IceWhaleTech/CasaOS/issues/909))
+- [System] Terminal font issue fix ([#929](https://github.com/IceWhaleTech/CasaOS/issues/929))
+- [File] Fixed the problem of not being able to launch after mounting
+
+### Removed
+
+
+## [0.4.2]
+
+### Added
+
+- [App] Increase the display of progress during the installation process
+- [App] Label whether the current app supports x86 or Pi devices
+- [App] Support single app version upgrade
+- [File] Support mounting of Google Drive and Dropbox cloud drives
+- [System] Support Mint Linux
+
+### Changed
+
+- [File] Optimize the download speed of a single file
+
+### Fixed
+
+- [Share] Fix the samba permission issue 
+- [Disk] Fix the problem of disk mount point plus 1 after upgrade ([#770](https://github.com/IceWhaleTech/CasaOS/issues/770))
+- [File] Fix the problem of file permission change caused by modifying files in casaos ([#829](https://github.com/IceWhaleTech/CasaOS/issues/829))
+- [Share] Fix the problem of files being deleted due to samba uninstallation failure ([#843](https://github.com/IceWhaleTech/CasaOS/issues/843))
+
+
+
+## [0.4.1] - 2023-1-19
+
+
+### Added
+- [Disk] Added disk merging feature in storage management (beta) that allows for multiple disks to be merged into a single storage space
+- [System] Added option for startpage.com search engine
+- [APP] Added app cloning feature in the app's context menu.
+### Changed
+- [APP] Improved app installation process, including display of the installation process, checks for successful installation, and prompts
+- [System] Binary sizes are 40%~60% smaller (thanks to upx)
+- [App] Optimization of install and update for certain country.
+- [All] Lots of bug fixes
+
 ## [0.4.0] - 2022-12-13
 ### Added
 

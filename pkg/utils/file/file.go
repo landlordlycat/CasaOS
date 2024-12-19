@@ -2,6 +2,7 @@ package file
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -74,6 +75,22 @@ func RMDir(src string) error {
 	}
 	os.Remove(src)
 	return nil
+}
+
+func RemoveAll(dir string) error {
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			return os.Remove(path)
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return os.Remove(dir)
 }
 
 // Open a file according to a specific mode
@@ -162,7 +179,7 @@ func CreateFileAndWriteContent(path string, content string) error {
 	return nil
 }
 
-// IsNotExistMkDir create a directory if it does not exist
+// IsNotExistCreateFile create a file if it does not exist
 func IsNotExistCreateFile(src string) error {
 	if notExist := CheckNotExist(src); notExist {
 		if err := CreateFile(src); err != nil {
@@ -430,7 +447,9 @@ func AddFile(ar archiver.Writer, path, commonPath string) error {
 	defer file.Close()
 
 	if path != commonPath {
-		filename := info.Name()
+		//filename := info.Name()
+		filename := strings.TrimPrefix(path, commonPath)
+		filename = strings.TrimPrefix(filename, string(filepath.Separator))
 		err = ar.Write(archiver.File{
 			FileInfo: archiver.FileInfo{
 				FileInfo:   info,
@@ -576,4 +595,166 @@ func ReadLine(lineNumber int, path string) string {
 	}
 	defer file.Close()
 	return ""
+}
+
+func NameAccumulation(name string, dir string) string {
+	path := filepath.Join(dir, name)
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return name
+	}
+	base := name
+	strings.Split(base, "_")
+	index := strings.LastIndex(base, "_")
+	if index < 0 {
+		index = len(base)
+	}
+	for i := 1; ; i++ {
+		newPath := filepath.Join(dir, fmt.Sprintf("%s_%d", base[:index], i))
+		if _, err := os.Stat(newPath); os.IsNotExist(err) {
+			return fmt.Sprintf("%s_%d", base[:index], i)
+		}
+	}
+}
+
+func ParseFileHeader(h []byte, boundary []byte) (map[string]string, bool) {
+	arr := bytes.Split(h, boundary)
+	//var out_header FileHeader
+	//out_header.ContentLength = -1
+	const (
+		CONTENT_DISPOSITION = "Content-Disposition: "
+		NAME                = "name=\""
+		FILENAME            = "filename=\""
+		CONTENT_TYPE        = "Content-Type: "
+		CONTENT_LENGTH      = "Content-Length: "
+	)
+	result := make(map[string]string)
+	for _, item := range arr {
+
+		tarr := bytes.Split(item, []byte(";"))
+		if len(tarr) != 2 {
+			continue
+		}
+
+		tbyte := tarr[1]
+		fmt.Println(string(tbyte))
+		tbyte = bytes.ReplaceAll(tbyte, []byte("\r\n--"), []byte(""))
+		tbyte = bytes.ReplaceAll(tbyte, []byte("name=\""), []byte(""))
+		tempArr := bytes.Split(tbyte, []byte("\"\r\n\r\n"))
+		if len(tempArr) != 2 {
+			continue
+		}
+		bytes.HasPrefix(item, []byte("name="))
+		result[strings.TrimSpace(string(tempArr[0]))] = strings.TrimSpace(string(tempArr[1]))
+	}
+	// for _, item := range arr {
+	// 	if bytes.HasPrefix(item, []byte(CONTENT_DISPOSITION)) {
+	// 		l := len(CONTENT_DISPOSITION)
+	// 		arr1 := bytes.Split(item[l:], []byte("; "))
+	// 		out_header.ContentDisposition = string(arr1[0])
+	// 		if bytes.HasPrefix(arr1[1], []byte(NAME)) {
+	// 			out_header.Name = string(arr1[1][len(NAME) : len(arr1[1])-1])
+	// 		}
+	// 		l = len(arr1[2])
+	// 		if bytes.HasPrefix(arr1[2], []byte(FILENAME)) && arr1[2][l-1] == 0x22 {
+	// 			out_header.FileName = string(arr1[2][len(FILENAME) : l-1])
+	// 		}
+	// 	} else if bytes.HasPrefix(item, []byte(CONTENT_TYPE)) {
+	// 		l := len(CONTENT_TYPE)
+	// 		out_header.ContentType = string(item[l:])
+	// 	} else if bytes.HasPrefix(item, []byte(CONTENT_LENGTH)) {
+	// 		l := len(CONTENT_LENGTH)
+	// 		s := string(item[l:])
+	// 		content_length, err := strconv.ParseInt(s, 10, 64)
+	// 		if err != nil {
+	// 			log.Printf("content length error:%s", string(item))
+	// 			return out_header, false
+	// 		} else {
+	// 			out_header.ContentLength = content_length
+	// 		}
+	// 	} else {
+	// 		log.Printf("unknown:%s\n", string(item))
+	// 	}
+	// }
+	//fmt.Println(result)
+	// if len(out_header.FileName) == 0 {
+	// 	return out_header, false
+	// }
+	return result, true
+}
+
+func ReadToBoundary(boundary []byte, stream io.ReadCloser, target io.WriteCloser) ([]byte, bool, error) {
+	read_data := make([]byte, 1024*8)
+	read_data_len := 0
+	buf := make([]byte, 1024*4)
+	b_len := len(boundary)
+	reach_end := false
+	for !reach_end {
+		read_len, err := stream.Read(buf)
+		if err != nil {
+			if err != io.EOF && read_len <= 0 {
+				return nil, true, err
+			}
+			reach_end = true
+		}
+
+		copy(read_data[read_data_len:], buf[:read_len])
+		read_data_len += read_len
+		if read_data_len < b_len+4 {
+			continue
+		}
+		loc := bytes.Index(read_data[:read_data_len], boundary)
+		if loc >= 0 {
+
+			target.Write(read_data[:loc-4])
+			return read_data[loc:read_data_len], reach_end, nil
+		}
+		target.Write(read_data[:read_data_len-b_len-4])
+		copy(read_data[0:], read_data[read_data_len-b_len-4:])
+		read_data_len = b_len + 4
+	}
+	target.Write(read_data[:read_data_len])
+	return nil, reach_end, nil
+}
+
+func ParseFromHead(read_data []byte, read_total int, boundary []byte, stream io.ReadCloser) (map[string]string, []byte, error) {
+
+	buf := make([]byte, 1024*8)
+	found_boundary := false
+	boundary_loc := -1
+
+	for {
+		read_len, err := stream.Read(buf)
+		if err != nil {
+			if err != io.EOF {
+				return nil, nil, err
+			}
+			break
+		}
+		if read_total+read_len > cap(read_data) {
+			return nil, nil, fmt.Errorf("not found boundary")
+		}
+		copy(read_data[read_total:], buf[:read_len])
+		read_total += read_len
+		if !found_boundary {
+			boundary_loc = bytes.LastIndex(read_data[:read_total], boundary)
+			if boundary_loc == -1 {
+				continue
+			}
+			found_boundary = true
+		}
+		start_loc := boundary_loc + len(boundary)
+		fmt.Println(string(read_data))
+		file_head_loc := bytes.Index(read_data[start_loc:read_total], []byte("\r\n\r\n"))
+		if file_head_loc == -1 {
+			continue
+		}
+		file_head_loc += start_loc
+		ret := false
+		headMap, ret := ParseFileHeader(read_data, boundary)
+		if !ret {
+			return headMap, nil, fmt.Errorf("ParseFileHeader fail:%s", string(read_data[start_loc:file_head_loc]))
+		}
+		return headMap, read_data[file_head_loc+4 : read_total], nil
+	}
+	return nil, nil, fmt.Errorf("reach to sream EOF")
 }

@@ -66,10 +66,11 @@ func SendAllHardwareStatusBySocket() {
 
 	body["sys_net"] = newNet
 	systemTempMap := service.MyService.Notify().GetSystemTempMap()
-	for k, v := range systemTempMap {
-		body[k] = v
-	}
-	service.MyService.Notify().SendNotify("sys_hardware_status", body)
+	systemTempMap.Range(func(key, value interface{}) bool {
+		body[key.(string)] = value
+		return true
+	})
+	service.MyService.Notify().SendNotify("casaos:system:utilization", body)
 }
 
 // func MonitoryUSB() {

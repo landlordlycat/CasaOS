@@ -40,7 +40,7 @@ jobs:
       #        env:
       #          GITHUB_TOKEN: ${{ github.token }}
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: true
@@ -65,7 +65,7 @@ jobs:
       #          ls
       
 
-      - name: Set enviroment for github-release
+      - name: Set environment for github-release
         run: |
           echo "VERSION=$(cat types/system.go | grep CURRENTVERSION | awk '$2 == "CURRENTVERSION"{print $4}' | sed 's/"//g')" >>$GITHUB_ENV
           echo "BODY=$(cat types/system.go | grep BODY | awk -F= '{print $2}' | sed 's/"//g')" >>$GITHUB_ENV
@@ -73,7 +73,7 @@ jobs:
 
 
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '14'
           

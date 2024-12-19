@@ -25,7 +25,7 @@ GetNetCard() {
     fi
   else
     if [ -d "/sys/devices/virtual/net" ] && [ -d "/sys/class/net" ]; then
-      ls /sys/class/net/ | grep -v "$(ls /sys/devices/virtual/net/)"
+      ls /sys/class/net/ | grep -v "$(ls /sys/devices/virtual/net/)" -w
     fi
   fi
 }
@@ -64,18 +64,6 @@ DelAppConfigDir() {
 #result start,end,sectors
 GetLocalJoinNetworks() {
   zerotier-cli listnetworks -j
-}
-
-#移除挂载点,删除已挂在的文件夹
-UMountPorintAndRemoveDir() {
-  DEVICE=$1
-  MOUNT_POINT=$(mount | grep ${DEVICE} | awk '{ print $3 }')
-  if [[ -z ${MOUNT_POINT} ]]; then
-    ${log} "Warning: ${DEVICE} is not mounted"
-  else
-    umount -lf ${DEVICE}
-    /bin/rmdir "${MOUNT_POINT}"
-  fi
 }
 
 #格式化fat32磁盘
@@ -133,11 +121,7 @@ GetPlugInDisk() {
   fdisk -l | grep 'Disk' | grep 'sd' | awk -F , '{print substr($1,11,3)}'
 }
 
-#获取磁盘状态
-#param 磁盘路径
-GetDiskHealthState() {
-  smartctl -H $1 | grep "SMART Health Status" | awk -F ":" '{print$2}'
-}
+
 
 #获取磁盘字节数量和扇区数量
 #param 磁盘路径  /dev/sda
@@ -370,19 +354,6 @@ MountCIFS(){
  $sudo_cmd mount -t cifs -o username=$1,password=$6,port=$4 //$2/$3 $5
 }
 
-# $1:service name
-CheckServiceStatus(){
-  rs="`systemctl status  $1 |grep -E  'Active|PID'`"
-#echo "$rs"
-  run="`echo "$rs" |grep -B 2 'running'`"
-  fai="`echo "$rs" |grep  -E -B 2 'failed|inactive|dead'`"
-  if [  "$run" == "" ]
-   then
-	    echo "failed" 
-   else
-      echo "running"
-   fi
-}
 UDEVILUmount(){
   $sudo_cmd udevil umount -f $1
 }

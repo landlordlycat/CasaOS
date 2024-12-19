@@ -1,6 +1,4 @@
-# CasaOS - Your Home Cloud OS
-
-
+# CasaOS - Your Personal Cloud 
 <!-- Readme i18n links -->
 <!-- > English | [中文](#) | [Français](#) -->
 
@@ -12,7 +10,7 @@
         <img alt="CasaOS" src="https://raw.githubusercontent.com/IceWhaleTech/logo/main/casaos/casaos_banner_twilight_blue_800x300.png">
     </picture>
     <br/>
-    <i>Connect with the community developing HOME CLOUD, creating self-sovereign, and defining the future of the distributed cloud.</i>
+    <i>Connect with the community, establish autonomy, reduce the cost of SaaS, and MAXIMIZE the potential for a personalized copilot.</i>
     <br/>
     <br/>
     <!-- CasaOS Badges -->
@@ -27,6 +25,9 @@
     </a>
     <a href="https://github.com/IceWhaleTech/CasaOS/issues" target="_blank">
         <img alt="CasaOS Issues" src="https://img.shields.io/github/issues/IceWhaleTech/CasaOS?color=162453&style=flat-square&label=Issues" />
+    </a>
+    <a href="https://codecov.io/gh/IceWhaleTech/CasaOS" > 
+    <img src="https://codecov.io/gh/IceWhaleTech/CasaOS/branch/main/graph/badge.svg?token=l9uMKGlkxM"/> 
     </a>
     <a href="https://github.com/IceWhaleTech/CasaOS/stargazers" target="_blank">
         <img alt="CasaOS Stargazers" src="https://img.shields.io/github/stars/IceWhaleTech/CasaOS?color=162453&style=flat-square&label=Stars" />
@@ -46,6 +47,11 @@
 <a href="#credits"><img alt="All Contributors" src="https://img.shields.io/static/v1?label=All%20Contributors&message=15&color=162453&style=flat-square&logo=Handshake&logoColor=fff" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
     <br/>
+    <!-- CasaOS YouTube -->
+    <a href="https://www.youtube.com/channel/UC2zMrUYT17AJhIl9XWZzT8g" target="_blank">
+        <img alt="YouTube Tutorial Views" src="https://img.shields.io/youtube/channel/views/UC2zMrUYT17AJhIl9XWZzT8g?style=for-the-badge&logo=youtube&logoColor=red&label=YouTube%20Tutorial%20Views" />
+    </a>
+    <br/>
     <!-- CasaOS Links -->
     <a href="https://www.casaos.io" target="_blank">Website</a> |
     <a href="http://demo.casaos.io" target="_blank">Demo</a> |
@@ -62,18 +68,16 @@
     </kbd>
 </p>
 
-## Why do we need Home Cloud?
+## Why do you need Personal Cloud?
 
-Think about it seriously. Is control of our data, smart devices and digital assets now only in the hands of some big company?
+In 2020, the team noticed three important trends:
+- The cost of computing power and storage was decreasing fast.
+- A part of cloud computing was moving towards edge computing.
+- The issue of consumer data asset ownership and attribution had been ignored.
 
-- Is your photo album saved in their cloud service?
-- Do your thermostats, monitors, lamps need to be used through their cloud services?
-- Do your personal documents, memos, contacts, passwords, etc. reside in their cloud storage services?
-- Are you just going to have to accept their decisions when they decide to change prices, review content or even discontinue services?
+Based on these trends, the team proposed a thought experiment internally: what if personal clouds were available under $100 in next five years? This personal cloud would provide a low-cost data collaboration solution as a personal data center, storing and managing data for creators and small organizations. A distributed collaborative computing network can be formed by personal servers located around the world. It could also control and connect all smart devices, providing cross-ecosystem local intelligent services.
 
-It sounds ridiculous, doesn't it? We are losing control of our own data!
-
-Our ideal home cloud is one where you can manage all your data, devices and data assets very easily. In your own home, you have absolute control.
+Furthermore, the personal cloud could combine personal data to train personalized AI assistants. The idea is that this technology would be an effective way to solve the issue of consumer data asset ownership and , as well as provide a more affordable and efficient computing solution for individuals and small organizations.
 
 > If you think what we are doing is valuable. Please **give us a star ⭐** and **fork it 🤞**!
 
@@ -84,7 +88,7 @@ Our ideal home cloud is one where you can manage all your data, devices and data
 - Multiple hardware and base system support
   - ZimaBoard, NUC, RPi, old computers, whatever is available.
 - Selected apps in the app store, one-click installation
-  - Nextcloud, HomeAssiant, AdGuard, Jellyfin, *arr and more!
+  - Nextcloud, HomeAssistant, AdGuard, Jellyfin, *arr and more!
 - Easily install numerous Docker apps
   - Over 100,000 apps from the Docker ecosystem can be easily installed
 - Elegant drive and file management
@@ -105,7 +109,7 @@ CasaOS fully supports ZimaBoard, Intel NUC, and Raspberry Pi. Also, more compute
 ### System Compatibility
 
 Official Support
-- Debian 11 (✅ Tested, Recommended)
+- Debian 12 (✅ Tested, Recommended)
 - Ubuntu Server 20.04 (✅ Tested)
 - Raspberry Pi OS (✅ Tested)
 
@@ -130,6 +134,30 @@ or
 curl -fsSL https://get.casaos.io | sudo bash
 ```
 
+### Update CasaOS
+
+CasaOS can be updated from the User Interface (UI), via `Settings ... Update`.  
+
+Alternatively it can be updated from a terminal session.  To update from a terminal session, it must be done either from a secure shell (ssh) session to the device or from a directly attached terminal and keyboard to the device running CasaOS, this cannot be done from the terminal via the CasaOS User Interface (UI).  To update to the latest release of CasaOS from a terminal session run this command:
+
+```sh
+wget -qO- https://get.casaos.io/update | sudo bash
+```
+
+or
+
+```sh
+curl -fsSL https://get.casaos.io/update | sudo bash
+```
+
+To determine version of CasaOS from a terminal session run this command:
+
+```sh
+casaos -v
+```
+
+
+
 ### Uninstall CasaOS
 
 
@@ -147,13 +175,13 @@ curl -fsSL https://get.icewhale.io/casaos-uninstall.sh | sudo bash
 
 ## Community 
 
-The word Casa comes from the Spanish word for "home". Project CasaOS originated as a pre-installed system for crowdfunded product [ZimaBoard](https://www.zimaboard.com) on Kickstarter.
+The word Casa comes from the Spanish word for "home". Project CasaOS originated as a pre-installed system for the crowdfunded product [ZimaBoard](https://www.zimaboard.com) on Kickstarter.
 
 After looking at many systems and software on the market, the team found no server system designed for home scenarios, sadly true.
 
-So, we set out to build this open source project to develop CasaOS with our own hands, everyone in the community, and you.
+So, we set out to build this open-source project to develop CasaOS with our own hands, everyone in the community, and you.
 
-We believes that through community-driven collaborative innovation and open communication with global developers, we can reshape the digital home experience like never before.
+We believe that through community-driven collaborative innovation and open communication with global developers, we can reshape the digital home experience like never before.
 
 **A warm welcome for you to get help or share great ideas in the [Discord](https://discord.gg/knqAbbBbeX)!**
 
@@ -163,8 +191,9 @@ We believes that through community-driven collaborative innovation and open comm
 
 CasaOS is a community-driven open source project and the people involved are CasaOS users. That means CasaOS will always need contributions from community members just like you!
 
-- See <https://wiki.casaos.io/en/contribute> for ways of contribution to CasaOS
-- See <https://wiki.casaos.io/en/contribute/development> if you want to be involved in code contribution specificially
+- See <https://wiki.casaos.io/en/contribute> for ways of contributing to CasaOS
+- See <https://wiki.casaos.io/en/contribute/development> if you want to be involved in code contribution specifically
+
 
 ## Credits
 
@@ -196,6 +225,8 @@ Everyone's contribution is greatly appreciated. ([Emoji Key](https://allcontribu
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/llwaini"><img src="https://avatars.githubusercontent.com/u/59589857?v=4?s=100" width="100px;" alt=""/><br /><sub><b>llwaini</b></sub></a><br /><a href="#projectManagement-llwaini" title="Project Management">📆</a> <a href="https://github.com/IceWhaleTech/CasaOS/commits?author=llwaini" title="Tests">⚠️</a> <a href="#tutorial-llwaini" title="Tutorials">✅</a></td>
+    <td align="center"><a href="https://github.com/CorrectRoadH"><img src="https://avatars.githubusercontent.com/u/29306285?v=4?s=100" width="100px;" alt=""/><br /><sub><b>CorrectRoadH</b></sub></a><br /><a href="https://github.com/IceWhaleTech/CasaOS/commits?author=correctroadh" title="Code">💻</a> <a href="https://github.com/IceWhaleTech/CasaOS/commits?author=correctroadh" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/zhanghengxin"><img src="https://avatars.githubusercontent.com/u/24197448?v=4?s=100" width="100px;" alt=""/><br /><sub><b>zhanghengxin</b></sub></a><br /><a href="https://github.com/IceWhaleTech/CasaOS/commits?author=zhanghengxin" title="Code">💻</a> <a href="https://github.com/IceWhaleTech/CasaOS/commits?author=zhanghengxin" title="Documentation">📖</a></td>
   </tr>
 </table>
 
@@ -204,7 +235,7 @@ Everyone's contribution is greatly appreciated. ([Emoji Key](https://allcontribu
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind are welcome!
 
 ## Changelog
 

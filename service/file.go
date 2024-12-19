@@ -22,6 +22,7 @@ import (
 	"github.com/IceWhaleTech/CasaOS-Common/utils/logger"
 	"github.com/IceWhaleTech/CasaOS/model"
 	"github.com/IceWhaleTech/CasaOS/pkg/utils/file"
+	"github.com/moby/sys/mountinfo"
 	"go.uber.org/zap"
 )
 
@@ -101,16 +102,20 @@ func FileOperate(k string) {
 					os.RemoveAll(temp.To + "/" + lastPath)
 				}
 			}
-			err := os.Rename(v.From, temp.To+"/"+lastPath)
-			if err != nil {
-				logger.Error("file move error", zap.Any("err", err))
-				err = file.MoveFile(v.From, temp.To+"/"+lastPath)
+			err := file.CopyDir(v.From, temp.To, temp.Style)
+			if err == nil {
+				err = os.RemoveAll(v.From)
 				if err != nil {
-					logger.Error("MoveFile error", zap.Any("err", err))
-					continue
-				}
+					logger.Error("file move error", zap.Any("err", err))
+					err = file.MoveFile(v.From, temp.To+"/"+lastPath)
+					if err != nil {
+						logger.Error("MoveFile error", zap.Any("err", err))
+						continue
+					}
 
+				}
 			}
+
 		} else if temp.Type == "copy" {
 			err := file.CopyDir(v.From, temp.To, temp.Style)
 			if err != nil {
@@ -171,4 +176,17 @@ func CheckFileStatus() {
 		}
 		time.Sleep(time.Second * 3)
 	}
+}
+func IsMounted(path string) bool {
+	mounted, _ := mountinfo.Mounted(path)
+	if mounted {
+		return true
+	}
+	connections := MyService.Connections().GetConnectionsList()
+	for _, v := range connections {
+		if v.MountPoint == path {
+			return true
+		}
+	}
+	return false
 }

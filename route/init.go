@@ -17,20 +17,23 @@ import (
 	"strings"
 	"time"
 
+	file1 "github.com/IceWhaleTech/CasaOS-Common/utils/file"
 	"github.com/IceWhaleTech/CasaOS-Common/utils/logger"
+	"github.com/IceWhaleTech/CasaOS/common"
 	"github.com/IceWhaleTech/CasaOS/model"
 	"github.com/IceWhaleTech/CasaOS/pkg/config"
 	"github.com/IceWhaleTech/CasaOS/pkg/samba"
 	"github.com/IceWhaleTech/CasaOS/pkg/utils/encryption"
 	"github.com/IceWhaleTech/CasaOS/pkg/utils/file"
+	v1 "github.com/IceWhaleTech/CasaOS/route/v1"
 	"github.com/IceWhaleTech/CasaOS/service"
-	"github.com/IceWhaleTech/CasaOS/types"
 	"go.uber.org/zap"
 )
 
 func InitFunction() {
 	go InitNetworkMount()
 	go InitInfo()
+	//go InitZerotier()
 }
 
 func InitInfo() {
@@ -50,7 +53,13 @@ func InitInfo() {
 		logger.Error("GetMacAddress", zap.String("error", err.Error()))
 	}
 	mb.Hash = encryption.GetMD5ByStr(mac)
-	mb.Version = types.CURRENTVERSION
+	mb.Version = common.VERSION
+	osRelease, _ := file1.ReadOSRelease()
+
+	mb.DriveModel = osRelease["MODEL"]
+	if len(mb.DriveModel) == 0 {
+		mb.DriveModel = "Casa"
+	}
 	os.Remove(config.AppInfo.DBPath + "/baseinfo.conf")
 	by, err := json.Marshal(mb)
 	if err != nil {
@@ -73,7 +82,11 @@ func InitNetworkMount() {
 		}
 		baseHostPath := "/mnt/" + connection.Host
 
-		mountPointList := service.MyService.System().GetDirPath(baseHostPath)
+		mountPointList, err := service.MyService.System().GetDirPath(baseHostPath)
+		if err != nil {
+			logger.Error("get mount point err", zap.Any("err", err))
+			continue
+		}
 		for _, v := range mountPointList {
 			service.MyService.Connections().UnmountSmaba(v.Path)
 		}
@@ -89,4 +102,11 @@ func InitNetworkMount() {
 		connection.Directories = strings.Join(directories, ",")
 		service.MyService.Connections().UpdateConnection(&connection)
 	}
+	err := service.MyService.Storage().CheckAndMountAll()
+	if err != nil {
+		logger.Error("mount storage err", zap.Any("err", err))
+	}
+}
+func InitZerotier() {
+	v1.CheckNetwork()
 }

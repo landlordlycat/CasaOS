@@ -8,16 +8,17 @@
  * @Website: https://www.casaos.io
  * Copyright (c) 2022 by icewhale, All Rights Reserved.
  */
-package v1
+package v1_test
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gin-gonic/gin"
+	v1 "github.com/IceWhaleTech/CasaOS/route/v1"
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
+	"github.com/labstack/echo/v4"
+	"gotest.tools/assert"
 )
 
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
@@ -53,17 +54,22 @@ func performRequest(r http.Handler, method, path string) *httptest.ResponseRecor
 func TestGetSambaSharesList(t *testing.T) {
 	t.Skip("This test is always failing. Skipped to unblock releasing - MUST FIX!")
 
-	gin.SetMode(gin.TestMode)
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+
 	executeWithContext := func() *httptest.ResponseRecorder {
 		response := httptest.NewRecorder()
-		con, ginEngine := gin.CreateTestContext(response)
+		// con, ginEngine := gin.CreateTestContext(response)
+		e := echo.New()
 
 		requestUrl := "/v1/samba/shares"
 		httpRequest, _ := http.NewRequest("GET", requestUrl, nil)
-		GetSambaSharesList(con)
-		ginEngine.ServeHTTP(response, httpRequest)
+
+		con := e.NewContext(httpRequest, response)
+
+		v1.GetSambaSharesList(con)
+		e.ServeHTTP(response, httpRequest)
 		return response
 	}
 
